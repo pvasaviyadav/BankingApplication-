@@ -1,0 +1,56 @@
+public class Bank {
+	public double rateOfInterest() {
+		return 0.0;
+	}
+}
+class HDFC extends Bank{
+	public double rateOfInterest() {
+		return 0.14;
+	}
+}
+class ICICI extends Bank{
+	public double rateOfInterest() {
+		return 0.10;
+	}
+}
+class stateBank extends Bank{
+	public double rateOfInterest() {
+		return 0.08;
+	}
+}
+class SalesMan{
+	public void ProvideLoans(double amount,Bank bank){
+		double roiDouble=bank.rateOfInterest()*100;
+		int roiInt=(int)roiDouble;
+		System.out.println(roiInt+" % is the rate of interest provided by "+bank.getClass().getSimpleName()+" bank");
+		double interestAmount=amount*bank.rateOfInterest();
+		System.out.println(interestAmount+" is the interest charged for the amount "+amount+" by "+bank.getClass().getSimpleName()+" bank");
+		double total=amount+interestAmount;
+		System.out.println(total+" is the grand total to be paid for "+bank.getClass().getSimpleName()+" bank");
+	}
+}
+class BankApp{
+	public static void main(String[] args) {
+		Scanner os=new Scanner(System.in);
+		System.out.println("enter the amount : ");
+		double amount=os.nextDouble();
+		SalesMan salesman=new SalesMan();
+		System.out.println("1.HDFC\n2.ICICI\n3.stateBank");
+		System.out.println("enter the bank name :");
+		int selectBank=os.nextInt();
+		switch(selectBank) {
+		case 1: 
+			salesman.ProvideLoans(amount,new HDFC());
+			break;
+		case 2: 
+			salesman.ProvideLoans(amount,new ICICI());
+			break;
+		case 3: 
+			salesman.ProvideLoans(amount,new stateBank());
+			break;
+		default: 
+			System.out.println("invalid choice----------!");
+			break;
+		}
+	}
+}
