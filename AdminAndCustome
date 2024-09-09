@@ -1,0 +1,222 @@
+public class Admin {
+
+	public static void main(String[] args) throws Exception {
+		Scanner os=new Scanner(System.in);
+		System.out.println("1.Register\n 2.login\n choose one option");
+		int choose=os.nextInt();
+		switch(choose) {
+		case 1:
+			register();break;
+		case 2:
+			login();break;
+		}
+}
+	public static void login() throws Exception {
+		Scanner os=new Scanner(System.in);
+		System.out.println("enter email :");
+		String email=os.next();
+		System.out.println("enter password :");
+		String password=os.next();
+		Connection con=Helper.getConnectionObject();
+		PreparedStatement ps=con.prepareStatement("select * from admin where email=? and password=?");
+		ps.setString(1, email);
+		ps.setString(2, password);
+		ResultSet rs=ps.executeQuery();
+		if(rs.next()) {
+			System.out.println("Welcome");
+			while(true) {
+				System.out.println("--------------------------------------------------------------------------");
+				System.out.println("1.Add Account 2.view Account 3.view all Account 4.perform a transaction");
+				System.out.println("select any option : ");
+				Scanner os1=new Scanner(System.in);
+				int option=os1.nextInt();
+				switch(option) {
+				case 1:
+					Scanner os2=new Scanner(System.in);
+					System.out.println("enter id :");
+					int id=os2.nextInt();
+					
+					System.out.println("enter accountnumber :");
+					long accountnumber=os2.nextLong();
+					
+					System.out.println("enter pincode :");
+					int pincode=os2.nextInt();
+					
+					System.out.println("enter balance :");
+					double balance=os2.nextDouble();
+					
+					System.out.println("enter name :");
+					String name=os2.next();
+					
+					System.out.println("enter mobilenumber :");
+					long mobilenumber=os2.nextLong();
+					
+					
+					Connection con1=Helper.getConnectionObject();
+					PreparedStatement ps1=con1.prepareStatement("insert into account(id,account_number,pincode,balance,name,mobile_number)values(?,?,?,?,?,?)");
+					
+					ps1.setInt(1, id);
+					ps1.setLong(2, accountnumber);
+					ps1.setInt(3, pincode);
+					ps1.setDouble(4, balance);
+					ps1.setString(5, name);
+					ps1.setLong(6, mobilenumber);
+					ps1.execute();
+					System.out.println("Data inserted successfully");
+					break;
+				case 2:
+					Scanner os3=new Scanner(System.in);
+					System.out.println("enter id : ");
+					int id1=os3.nextInt();
+
+					
+					Connection con2=Helper.getConnectionObject();
+					PreparedStatement ps2=con.prepareStatement("select * from account where id=?");
+					ps2.setInt(1, id1);
+					ResultSet rs1=ps2.executeQuery();
+					if(rs1.next()) {
+						System.out.println(rs1.getInt(1)+" | "+rs1.getLong(2)+" | "+rs1.getInt(3)+" | "+rs1.getDouble(4)+" | "+rs1.getString(5)+" | "+rs1.getLong(6));
+					}
+					break;
+				case 3:
+					
+					
+					Connection con3=Helper.getConnectionObject();
+					PreparedStatement ps3=con.prepareStatement("select * from account");
+					ResultSet rs2=ps3.executeQuery();
+					while(rs2.next()) {
+						System.out.println(rs2.getInt(1)+". | "+rs2.getLong(2)+" | "+rs2.getInt(3)+" | "+rs2.getDouble(4)+" | "+rs2.getString(5)+" | "+rs2.getLong(6));
+					}
+					break;
+				case 4:
+					Scanner os4=new Scanner(System.in);
+					System.out.println("enter account number : ");
+					long acno=os4.nextLong();
+					System.out.println("enter pincode : ");
+					int pin=os4.nextInt();
+					if(Account.accountValidation(acno,pin)) {
+						System.out.println("1. deposit money\n 2.send money\n 3.withdraw money\n"
+								+"if you want to do transaction enter one from these otherwise don't enter:");
+						int n=os4.nextInt();
+						switch(n) {
+						case 1:
+							System.out.println("enter the amount to deposit : ");
+							int amount=os4.nextInt();
+							Account.depositMoney(acno,amount);
+							break;
+						case 2:
+							Account.sendMoney(acno,pin);
+							break;
+						case 3:
+							System.out.println("enter the amount to withdraw : ");
+							int amont=os4.nextInt();
+							Account.withdrawMoney(acno,amont);
+							break;
+						}
+					}
+				}
+			}
+		}
+		else {
+			System.out.println("invalid credentials please try again or else first register");
+		}
+	}
+	public static void register() throws Exception {
+		
+		Scanner os=new Scanner(System.in);
+		System.out.println("enter email :");
+		String email=os.next();
+		System.out.println("enter password :");
+		String password=os.next();
+		
+		Connection con=Helper.getConnectionObject();
+		PreparedStatement ps=con.prepareStatement("select * from admin where email=? and password=?");
+		ps.setString(1, email);
+		ps.setString(2, password);
+		ResultSet rs=ps.executeQuery();
+		if(rs.next()) {
+			System.out.println("email already exist");
+		}
+		else {
+			Scanner os1=new Scanner(System.in);
+			System.out.println("enter id : ");
+			int id=os1.nextInt();
+			System.out.println("enter name : ");
+			String name=os1.next();
+			
+			Connection con1=Helper.getConnectionObject();;
+			PreparedStatement ps1=con1.prepareStatement("insert into admin(id,name,email,password) values(?,?,?,?)");
+			ps1.setInt(1, id);
+			ps1.setString(2, name);
+			ps1.setString(3, email);
+			ps1.setString(4, password);
+			ps1.execute();
+			System.out.println("registation successfull");
+		}
+	}
+}
+public class Account {
+	public static boolean accountValidation(long acno,int pin) throws Exception {
+		
+		Connection con=Helper.getConnectionObject();
+		PreparedStatement ps=con.prepareStatement("select * from account where account_number=? and pincode=?");
+		ps.setLong(1, acno);
+		ps.setInt(2, pin);
+		ResultSet rs=ps.executeQuery();
+		return rs.next();
+	}
+	public static void depositMoney(long acno,int amt) throws Exception {
+		
+		Connection con=Helper.getConnectionObject();
+		PreparedStatement ps=con.prepareStatement("update account set balance=? where account_number=?");
+		ps.setDouble(1,balance(acno)+amt);
+		ps.setLong(2, acno);
+		ps.executeUpdate();
+		System.out.println("the amouont is deposited");
+	}
+	public static double balance(long acno) throws Exception{
+		
+		Connection con=Helper.getConnectionObject();
+		PreparedStatement ps=con.prepareStatement("select balance from account where account_number=?");
+		ps.setLong(1, acno);
+		ResultSet rs=ps.executeQuery();
+		rs.next();
+		return rs.getDouble(1);
+	}
+	public static void sendMoney(long acno,int pin) throws Exception {
+		Scanner os=new Scanner(System.in);
+		System.out.println("to whom you want to send money\n"+"enter their account_number : ");
+		long account_number=os.nextLong();
+		System.out.println("enter pin number : ");
+		int pin1=os.nextInt();
+		if(accountValidation(account_number,pin1)) {
+			System.out.println("enter the amount : ");
+			int amount=os.nextInt();
+			if(amount<=balance(acno)) {
+				depositMoney(account_number,amount);
+				withdrawMoney(acno,amount);
+				System.out.println("the amount is transfered successfully");
+			}
+			else {
+				System.out.println("your account has insuffiecient balance to transfer this amount ");
+			}
+		}
+		else {
+			System.out.println("there is no account with this account number and pincode");
+		}
+	}
+	public static void withdrawMoney(long acno,int amt) throws Exception {
+		if(amt<=balance(acno)) {
+			
+			Connection con=Helper.getConnectionObject();
+			PreparedStatement ps=con.prepareStatement("update account set balance=? where account_number=?");
+			ps.setDouble(1,balance(acno)-amt);
+			ps.setLong(2, acno);
+			ps.executeUpdate();
+			System.out.println("amount is withdrawn from your account");
+		}
+		else {
+			System.out.println("insuffiecient balance to withdrawn");
+		}
+	}
+}
